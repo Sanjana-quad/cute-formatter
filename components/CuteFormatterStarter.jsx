@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import html2canvas from "html2canvas-pro";
 
 // CuteFormatterStarter.jsx
 // Single-file starter React component (Tailwind CSS assumed) that provides:
@@ -12,73 +13,73 @@ import { useEffect, useState } from 'react';
 // Usage: drop into a Next.js or Create React App project with Tailwind configured.
 
 // ---------- Simple parser (heuristic fallback) ----------
-function simpleParse(text){
-  const lines = text.split(/\r?\n/).map(l=>l.trim());
+function simpleParse(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim());
   const nonEmpty = lines.filter(Boolean);
   const result = { title: null, sections: [] };
-  if(nonEmpty.length === 0) return result;
+  if (nonEmpty.length === 0) return result;
 
   // Title heuristic: first non-empty short line
   const first = nonEmpty[0];
-  if(first.length < 80 && first.split(' ').length <= 8){
+  if (first.length < 80 && first.split(' ').length <= 8) {
     result.title = first;
     lines.splice(lines.indexOf(first), 1);
   }
 
   let buffer = [];
-  const pushParagraph = ()=>{
-    if(buffer.length){
-      result.sections.push({ id: `p_${result.sections.length+1}`, type: 'paragraph', text: buffer.join(' ') });
+  const pushParagraph = () => {
+    if (buffer.length) {
+      result.sections.push({ id: `p_${result.sections.length + 1}`, type: 'paragraph', text: buffer.join(' ') });
       buffer = [];
     }
   };
 
   // detect numbered lists, bullet lists, blockquotes, code blocks
   let i = 0;
-  while(i < lines.length){
+  while (i < lines.length) {
     const line = lines[i];
-    if(!line){ i++; continue; }
+    if (!line) { i++; continue; }
     // code block (```)
-    if(line.startsWith('```')){
+    if (line.startsWith('```')) {
       pushParagraph();
       const codeLines = [];
       i++;
-      while(i < lines.length && !lines[i].startsWith('```')){ codeLines.push(lines[i]); i++; }
-      result.sections.push({ id: `code_${result.sections.length+1}`, type: 'code', text: codeLines.join('\n') });
+      while (i < lines.length && !lines[i].startsWith('```')) { codeLines.push(lines[i]); i++; }
+      result.sections.push({ id: `code_${result.sections.length + 1}`, type: 'code', text: codeLines.join('\n') });
       i++; continue;
     }
     // blockquote
-    if(line.startsWith('>')){
+    if (line.startsWith('>')) {
       pushParagraph();
-      result.sections.push({ id: `q_${result.sections.length+1}`, type: 'quote', text: line.replace(/^>\s?/, '') });
+      result.sections.push({ id: `q_${result.sections.length + 1}`, type: 'quote', text: line.replace(/^>\s?/, '') });
       i++; continue;
     }
     // numbered list
-    if(/^\d+\./.test(line)){
+    if (/^\d+\./.test(line)) {
       pushParagraph();
       const items = [];
-      while(i < lines.length && /^\d+\./.test(lines[i])){
+      while (i < lines.length && /^\d+\./.test(lines[i])) {
         items.push(lines[i].replace(/^\d+\.\s*/, ''));
         i++;
       }
-      result.sections.push({ id: `steps_${result.sections.length+1}`, type: 'step_list', items });
+      result.sections.push({ id: `steps_${result.sections.length + 1}`, type: 'step_list', items });
       continue;
     }
     // bullet list
-    if(/^[-*•]\s+/.test(line)){
+    if (/^[-*•]\s+/.test(line)) {
       pushParagraph();
       const items = [];
-      while(i < lines.length && /^[-*•]\s+/.test(lines[i])){
+      while (i < lines.length && /^[-*•]\s+/.test(lines[i])) {
         items.push(lines[i].replace(/^[-*•]\s+/, ''));
         i++;
       }
-      result.sections.push({ id: `list_${result.sections.length+1}`, type: 'list', items });
+      result.sections.push({ id: `list_${result.sections.length + 1}`, type: 'list', items });
       continue;
     }
     // notes
-    if(/^note[:\-]/i.test(line) || /^tip[:\-]/i.test(line)){
+    if (/^note[:\-]/i.test(line) || /^tip[:\-]/i.test(line)) {
       pushParagraph();
-      result.sections.push({ id: `note_${result.sections.length+1}`, type: 'note', text: line.replace(/^note[:\-]\s*/i, '') });
+      result.sections.push({ id: `note_${result.sections.length + 1}`, type: 'note', text: line.replace(/^note[:\-]\s*/i, '') });
       i++; continue;
     }
     // default: accumulate paragraph lines until blank
@@ -146,14 +147,93 @@ const SECTION_STYLE_PRESETS = {
 };
 
 // Helper to merge theme tokens into style object
-function themeStyleFromTokens(tokens){
+function themeStyleFromTokens(tokens) {
   const style = {};
-  Object.keys(tokens).forEach(k=>{ style[k] = tokens[k]; });
+  Object.keys(tokens).forEach(k => { style[k] = tokens[k]; });
   return style;
 }
 
+
+
+
 // ---------- Main component ----------
-export default function CuteFormatterStarter(){
+export default function CuteFormatterStarter() {
+  // console.log("COMPONENT RENDERED CLIENT-SIDE");
+  async function downloadPNG() {
+  const preview = document.getElementById("preview-root");
+  if (!preview) return;
+
+  const canvas = await html2canvas(preview, {
+    scale: 2, // higher resolution
+    backgroundColor: null
+  });
+
+  const url = canvas.toDataURL("image/png");
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "cute-output.png";
+  a.click();
+}
+  function downloadHTML() {
+    const wrapper = document.getElementById("preview-root");
+    if (!wrapper) return;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Formatted Output</title>
+<style>
+  :root {
+    ${Object.entries(themeTokens)
+        .map(([k, v]) => `${k}: ${v};`)
+        .join("\n")}
+  }
+  body {
+    font-family: ${themeTokens["--font"]};
+    background: ${themeTokens["--bg"]};
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+${wrapper.innerHTML}
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cute-output.html";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleSmartParse() {
+    try {
+      const res = await fetch("/api/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input })
+      });
+
+      const data = await res.json();
+
+      if (data.ast) {
+        setAst(data.ast);
+      } else {
+        alert("Parse error: " + data.error);
+      }
+    } catch (err) {
+      alert("Network or server error");
+    }
+  }
   const [input, setInput] = useState(`Project Plan\n1. Design UI\n2. Build auth\n3. Launch\n\nNote: remember accessibility checks.`);
   const [ast, setAst] = useState(() => simpleParse(input));
   const [themeName, setThemeName] = useState('pastel');
@@ -161,39 +241,39 @@ export default function CuteFormatterStarter(){
   const [sectionStyles, setSectionStyles] = useState({});
 
   // parse on input change (debounced)
-  useEffect(()=>{
-    const t = setTimeout(()=>{ setAst(simpleParse(input)); }, 180);
-    return ()=>clearTimeout(t);
+  useEffect(() => {
+    const t = setTimeout(() => { setAst(simpleParse(input)); }, 180);
+    return () => clearTimeout(t);
   }, [input]);
 
-  useEffect(()=>{ setThemeTokens(THEME_PRESETS[themeName]); }, [themeName]);
+  useEffect(() => { setThemeTokens(THEME_PRESETS[themeName]); }, [themeName]);
 
-  useEffect(()=>{
+  useEffect(() => {
     // initialize per-section defaults when AST changes
     const defaults = {};
-    if(ast.title) defaults.title = SECTION_STYLE_PRESETS.title[0].id;
-    ast.sections.forEach(s=>{
-      if(!defaults[s.type]){
+    if (ast.title) defaults.title = SECTION_STYLE_PRESETS.title[0].id;
+    ast.sections.forEach(s => {
+      if (!defaults[s.type]) {
         const presets = SECTION_STYLE_PRESETS[s.type] || SECTION_STYLE_PRESETS.paragraph;
         defaults[s.type] = presets[0].id;
       }
     });
-    setSectionStyles(prev=>({ ...defaults, ...prev }));
+    setSectionStyles(prev => ({ ...defaults, ...prev }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ast.title, ast.sections.length]);
 
   // apply CSS variables to wrapper
-  const rootStyle = Object.fromEntries(Object.entries(themeTokens).map(([k,v])=>[k, v]));
+  const rootStyle = Object.fromEntries(Object.entries(themeTokens).map(([k, v]) => [k, v]));
 
   // small helpers to resolve style preset to inline style
-  function resolvePresetFor(sectionType){
+  function resolvePresetFor(sectionType) {
     const presetId = sectionStyles[sectionType];
     const list = SECTION_STYLE_PRESETS[sectionType] || SECTION_STYLE_PRESETS.paragraph;
-    return list.find(p=>p.id === presetId) || list[0];
+    return list.find(p => p.id === presetId) || list[0];
   }
 
   // Render preview pieces
-  function renderSection(s){
+  function renderSection(s) {
     const preset = resolvePresetFor(s.type) || {};
     const common = {
       fontSize: preset.fontSize,
@@ -203,26 +283,26 @@ export default function CuteFormatterStarter(){
 
     const animationClass = preset.animation === 'pop' ? 'animate-pop' : preset.animation === 'slide' ? 'animate-slide' : preset.animation === 'stagger' ? 'animate-stagger' : 'animate-fade';
 
-    switch(s.type){
+    switch (s.type) {
       case 'paragraph': return <p key={s.id} className={`mb-3 ${animationClass}`} style={common}>{s.text}</p>;
-      case 'quote': return <blockquote key={s.id} className={`mb-3 p-3 rounded border-l-4 ${animationClass}`} style={{...common, borderColor:'var(--accent)'}}>{s.text}</blockquote>;
-      case 'code': return <pre key={s.id} className={`mb-3 p-3 rounded bg-gray-900 text-white overflow-auto ${animationClass}`} style={{fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace', ...common}}><code>{s.text}</code></pre>;
-      case 'list': return <ul key={s.id} className={`${animationClass} list-disc pl-6 mb-3`} style={common}>{s.items.map((it,idx)=><li key={idx}>{it}</li>)}</ul>;
-      case 'step_list': return <ol key={s.id} className={`${animationClass} list-decimal pl-6 mb-3`} style={common}>{s.items.map((it,idx)=><li key={idx}>{it}</li>)}</ol>;
-      case 'note': return <div key={s.id} className={`${animationClass} inline-block px-3 py-1 rounded-full text-sm`} style={{background: 'var(--accent)', color: 'white', ...common}}>{s.text}</div>;
+      case 'quote': return <blockquote key={s.id} className={`mb-3 p-3 rounded border-l-4 ${animationClass}`} style={{ ...common, borderColor: 'var(--accent)' }}>{s.text}</blockquote>;
+      case 'code': return <pre key={s.id} className={`mb-3 p-3 rounded bg-gray-900 text-white overflow-auto ${animationClass}`} style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace', ...common }}><code>{s.text}</code></pre>;
+      case 'list': return <ul key={s.id} className={`${animationClass} list-disc pl-6 mb-3`} style={common}>{s.items.map((it, idx) => <li key={idx}>{it}</li>)}</ul>;
+      case 'step_list': return <ol key={s.id} className={`${animationClass} list-decimal pl-6 mb-3`} style={common}>{s.items.map((it, idx) => <li key={idx}>{it}</li>)}</ol>;
+      case 'note': return <div key={s.id} className={`${animationClass} inline-block px-3 py-1 rounded-full text-sm`} style={{ background: 'var(--accent)', color: 'white', ...common }}>{s.text}</div>;
       default: return <p key={s.id} className={`${animationClass} mb-3`} style={common}>{s.text}</p>;
     }
   }
 
   // small export: copy HTML to clipboard
-  async function exportHTML(){
+  async function exportHTML() {
     const wrapper = document.getElementById('preview-root');
-    if(!wrapper) return;
+    if (!wrapper) return;
     const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>${wrapper.innerHTML}</body></html>`;
-    try{
+    try {
       await navigator.clipboard.writeText(html);
       alert('Preview HTML copied to clipboard (paste into an HTML file).');
-    }catch(e){ alert('Copy failed.'); }
+    } catch (e) { alert('Copy failed.'); }
   }
 
   return (
@@ -232,21 +312,21 @@ export default function CuteFormatterStarter(){
         <div className="col-span-4">
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Input Text</label>
-            <textarea value={input} onChange={e=>setInput(e.target.value)} className="w-full h-48 p-3 rounded border focus:outline-none" />
+            <textarea value={input} onChange={e => setInput(e.target.value)} className="w-full h-48 p-3 rounded border focus:outline-none" />
           </div>
 
           <div className="mb-4 bg-white/60 p-3 rounded shadow">
             <label className="block text-sm font-medium mb-1">Theme</label>
-            <select value={themeName} onChange={e=>setThemeName(e.target.value)} className="w-full p-2 rounded border">
-              {Object.keys(THEME_PRESETS).map(t=> <option key={t} value={t}>{t}</option>)}
+            <select value={themeName} onChange={e => setThemeName(e.target.value)} className="w-full p-2 rounded border">
+              {Object.keys(THEME_PRESETS).map(t => <option key={t} value={t}>{t}</option>)}
             </select>
 
             <div className="mt-3 text-xs text-gray-600">Adjust tokens</div>
             <div className="mt-2 space-y-2">
-              {Object.keys(themeTokens).map(key=> (
+              {Object.keys(themeTokens).map(key => (
                 <div key={key} className="flex items-center gap-2">
                   <div className="w-28 text-xs">{key}</div>
-                  <input className="flex-1 p-1 rounded border" value={themeTokens[key]} onChange={e=>setThemeTokens(prev=>({ ...prev, [key]: e.target.value }))} />
+                  <input className="flex-1 p-1 rounded border" value={themeTokens[key]} onChange={e => setThemeTokens(prev => ({ ...prev, [key]: e.target.value }))} />
                 </div>
               ))}
             </div>
@@ -256,10 +336,10 @@ export default function CuteFormatterStarter(){
             <h3 className="text-sm font-medium mb-2">Detected Sections</h3>
             <div className="text-sm text-gray-700 mb-2">Title: <span className="font-semibold">{ast.title || '—'}</span></div>
             <div className="space-y-2">
-              {ast.sections.map(s=> (
+              {ast.sections.map(s => (
                 <div key={s.id} className="p-2 border rounded bg-white">
                   <div className="text-xs text-gray-500">{s.type}</div>
-                  <div className="text-sm mt-1">{s.text ? (s.text.length>80? s.text.slice(0,80)+'...':s.text) : (s.items? s.items.join(', '): '')}</div>
+                  <div className="text-sm mt-1">{s.text ? (s.text.length > 80 ? s.text.slice(0, 80) + '...' : s.text) : (s.items ? s.items.join(', ') : '')}</div>
                 </div>
               ))}
             </div>
@@ -267,7 +347,21 @@ export default function CuteFormatterStarter(){
 
           <div className="flex gap-2">
             <button onClick={exportHTML} className="px-3 py-2 bg-indigo-600 text-white rounded">Copy HTML</button>
-            <button onClick={()=>{ navigator.clipboard.writeText(input); alert('Input copied'); }} className="px-3 py-2 border rounded">Copy Input</button>
+            <button onClick={() => { navigator.clipboard.writeText(input); alert('Input copied'); }} className="px-3 py-2 border rounded">Copy Input</button>
+            <button onClick={handleSmartParse} className="mt-2 px-3 py-2 bg-purple-600 text-white rounded"> Smart Parse (LLM) </button>
+            <button
+              onClick={downloadHTML}
+              className="px-3 py-2 bg-green-600 text-white rounded"
+            >
+              Download HTML
+            </button>
+            <button
+              onClick={downloadPNG}
+              className="px-3 py-2 bg-pink-600 text-white rounded"
+            >
+              Download PNG
+            </button>
+
           </div>
         </div>
 
@@ -280,18 +374,18 @@ export default function CuteFormatterStarter(){
               {ast.title && (
                 <div>
                   <div className="text-xs text-gray-500">Title Style</div>
-                  <select value={sectionStyles.title || ''} onChange={(e)=>setSectionStyles(prev=>({ ...prev, title: e.target.value }))} className="w-full p-2 rounded border mt-1">
-                    {SECTION_STYLE_PRESETS.title.map(p=> <option key={p.id} value={p.id}>{p.label}</option>)}
+                  <select value={sectionStyles.title || ''} onChange={(e) => setSectionStyles(prev => ({ ...prev, title: e.target.value }))} className="w-full p-2 rounded border mt-1">
+                    {SECTION_STYLE_PRESETS.title.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                   </select>
                 </div>
               )}
 
               {/* dynamic list based on detected types */}
-              {Array.from(new Set(ast.sections.map(s=>s.type))).map(type=> (
+              {Array.from(new Set(ast.sections.map(s => s.type))).map(type => (
                 <div key={type}>
                   <div className="text-xs text-gray-500 capitalize">{type} style</div>
-                  <select value={sectionStyles[type] || ''} onChange={(e)=>setSectionStyles(prev=>({ ...prev, [type]: e.target.value }))} className="w-full p-2 rounded border mt-1">
-                    {(SECTION_STYLE_PRESETS[type] || SECTION_STYLE_PRESETS.paragraph).map(p=> <option key={p.id} value={p.id}>{p.label}</option>)}
+                  <select value={sectionStyles[type] || ''} onChange={(e) => setSectionStyles(prev => ({ ...prev, [type]: e.target.value }))} className="w-full p-2 rounded border mt-1">
+                    {(SECTION_STYLE_PRESETS[type] || SECTION_STYLE_PRESETS.paragraph).map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                   </select>
                 </div>
               ))}
@@ -305,12 +399,12 @@ export default function CuteFormatterStarter(){
 
         {/* Right: Live Preview */}
         <div className="col-span-4">
-          <div id="preview-root" className="p-6 rounded-lg shadow-lg" style={{background: 'var(--bg)', fontFamily: 'var(--font)'}}>
-            <div className="max-w-2xl mx-auto" style={{background: 'var(--card-bg)', padding: '1.25rem', borderRadius: '12px', boxShadow: '0 6px 20px rgba(16,24,40,0.08)'}}>
-              {ast.title && <h1 className="text-2xl font-bold mb-4" style={{color: 'var(--accent)', fontSize: resolvePresetFor('title')?.fontSize}}>{ast.title}</h1>}
+          <div id="preview-root" className="p-6 rounded-lg shadow-lg" style={{ background: 'var(--bg)', fontFamily: 'var(--font)' }}>
+            <div className="max-w-2xl mx-auto" style={{ background: 'var(--card-bg)', padding: '1.25rem', borderRadius: '12px', boxShadow: '0 6px 20px rgba(16,24,40,0.08)' }}>
+              {ast.title && <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--accent)', fontSize: resolvePresetFor('title')?.fontSize }}>{ast.title}</h1>}
 
               <div>
-                {ast.sections.map(s=> renderSection(s))}
+                {ast.sections.map(s => renderSection(s))}
               </div>
 
               <div className="mt-4 text-xs text-gray-500">Preview • Theme: {themeName}</div>
@@ -319,7 +413,7 @@ export default function CuteFormatterStarter(){
 
           {/* Glitter overlay controlled by token (simple) */}
           <div aria-hidden className="pointer-events-none">
-            <div style={{position:'absolute', inset:0, opacity: themeTokens['--glitter'] || 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '10px 10px', mixBlendMode:'screen'}} />
+            <div style={{ position: 'absolute', inset: 0, opacity: themeTokens['--glitter'] || 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '10px 10px', mixBlendMode: 'screen' }} />
           </div>
         </div>
       </div>
