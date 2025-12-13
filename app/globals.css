@@ -4,10 +4,46 @@
 
 @import "tailwindcss";
 
+/* soft float */
+.float-soft {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.float-soft:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(255, 182, 232, 0.25);
+}
+
+/* magical glow */
+.glow-cute {
+  box-shadow: 0 0 20px rgba(255, 200, 255, 0.4);
+}
+
+.parallax-layer {
+  transform: translate(
+    calc(var(--parallax-x) * 1),
+    calc(var(--parallax-y) * 1)
+  );
+  transition: transform 0.2s ease-out;
+}
+
+.parallax-slow {
+  transform: translate(
+    calc(var(--parallax-x) * 0.3),
+    calc(var(--parallax-y) * 0.3)
+  );
+}
+
+.parallax-fast {
+  transform: translate(
+    calc(var(--parallax-x) * 2),
+    calc(var(--parallax-y) * 2)
+  );
+}
 
 
 :root {
-  --background: #ffffff;
+  --background: #db6363;
   --foreground: #171717;
 }
 

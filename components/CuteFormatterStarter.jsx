@@ -159,22 +159,78 @@ function themeStyleFromTokens(tokens) {
 // ---------- Main component ----------
 export default function CuteFormatterStarter() {
   // console.log("COMPONENT RENDERED CLIENT-SIDE");
-  async function downloadPNG() {
-  const preview = document.getElementById("preview-root");
-  if (!preview) return;
+  async function downloadPDF() {
+  console.log("PDF button clicked");
 
-  const canvas = await html2canvas(preview, {
-    scale: 2, // higher resolution
-    backgroundColor: null
+  const wrapper = document.getElementById("preview-root");
+  if (!wrapper) return;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+  :root {
+    ${Object.entries(themeTokens).map(([k, v]) => `${k}: ${v};`).join("\n")}
+  }
+  body {
+    background: var(--bg);
+    font-family: var(--font);
+    padding: 32px;
+  }
+</style>
+</head>
+<body>
+${wrapper.innerHTML}
+</body>
+</html>
+`;
+
+  const formData = new FormData();
+  formData.append("html", html);
+
+  console.log("Sending PDF request...");
+
+  const res = await fetch("/api/export-pdf", {
+    method: "POST",
+    body: formData,
   });
 
-  const url = canvas.toDataURL("image/png");
+  console.log("PDF response status:", res.status);
 
+  if (!res.ok) {
+    alert("PDF generation failed");
+    return;
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "cute-output.png";
+  a.download = "cute-output.pdf";
   a.click();
+
+  URL.revokeObjectURL(url);
 }
+
+
+  async function downloadPNG() {
+    const preview = document.getElementById("preview-root");
+    if (!preview) return;
+
+    const canvas = await html2canvas(preview, {
+      scale: 2, // higher resolution
+      backgroundColor: null
+    });
+
+    const url = canvas.toDataURL("image/png");
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cute-output.png";
+    a.click();
+  }
   function downloadHTML() {
     const wrapper = document.getElementById("preview-root");
     if (!wrapper) return;
@@ -310,18 +366,18 @@ ${wrapper.innerHTML}
       <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
         {/* Left: Input + Controls */}
         <div className="col-span-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Input Text</label>
+          <div className="p-4 rounded-xl bg-white/70 backdrop-blur-md float-soft">
+            <label className="block text-black text-sm font-medium mb-1">Input Text</label>
             <textarea value={input} onChange={e => setInput(e.target.value)} className="w-full h-48 p-3 rounded border focus:outline-none" />
           </div>
 
-          <div className="mb-4 bg-white/60 p-3 rounded shadow">
-            <label className="block text-sm font-medium mb-1">Theme</label>
+          <div className="p-4 rounded-xl bg-black/70 backdrop-blur-md float-soft">
+            <label className="block text-sm text-white font-medium mb-1">Theme</label>
             <select value={themeName} onChange={e => setThemeName(e.target.value)} className="w-full p-2 rounded border">
               {Object.keys(THEME_PRESETS).map(t => <option key={t} value={t}>{t}</option>)}
             </select>
 
-            <div className="mt-3 text-xs text-gray-600">Adjust tokens</div>
+            <div className="mt-3 text-xs text-white-600">Adjust tokens</div>
             <div className="mt-2 space-y-2">
               {Object.keys(themeTokens).map(key => (
                 <div key={key} className="flex items-center gap-2">
@@ -332,14 +388,14 @@ ${wrapper.innerHTML}
             </div>
           </div>
 
-          <div className="mb-4 bg-white/60 p-3 rounded shadow">
-            <h3 className="text-sm font-medium mb-2">Detected Sections</h3>
+          <div className="p-4 rounded-xl bg-white/70 backdrop-blur-md float-soft">
+            <h3 className="text-sm text-black font-medium mb-2">Detected Sections</h3>
             <div className="text-sm text-gray-700 mb-2">Title: <span className="font-semibold">{ast.title || '—'}</span></div>
             <div className="space-y-2">
               {ast.sections.map(s => (
                 <div key={s.id} className="p-2 border rounded bg-white">
                   <div className="text-xs text-gray-500">{s.type}</div>
-                  <div className="text-sm mt-1">{s.text ? (s.text.length > 80 ? s.text.slice(0, 80) + '...' : s.text) : (s.items ? s.items.join(', ') : '')}</div>
+                  <div className="text-sm text-black mt-1">{s.text ? (s.text.length > 80 ? s.text.slice(0, 80) + '...' : s.text) : (s.items ? s.items.join(', ') : '')}</div>
                 </div>
               ))}
             </div>
@@ -361,13 +417,19 @@ ${wrapper.innerHTML}
             >
               Download PNG
             </button>
+            <button
+              onClick={downloadPDF}
+              className="px-3 py-2 bg-red-600 text-white rounded"
+            >
+              Download PDF
+            </button>
 
           </div>
         </div>
 
         {/* Middle: Per-section Style Editor */}
         <div className="col-span-4">
-          <div className="bg-white/60 p-4 rounded shadow">
+          <div className="bg-black/60 p-4 rounded shadow">
             <h3 className="font-medium mb-3">Per-section Style Editor</h3>
             <div className="space-y-4">
               {/* Title */}
@@ -398,9 +460,9 @@ ${wrapper.innerHTML}
         </div>
 
         {/* Right: Live Preview */}
-        <div className="col-span-4">
-          <div id="preview-root" className="p-6 rounded-lg shadow-lg" style={{ background: 'var(--bg)', fontFamily: 'var(--font)' }}>
-            <div className="max-w-2xl mx-auto" style={{ background: 'var(--card-bg)', padding: '1.25rem', borderRadius: '12px', boxShadow: '0 6px 20px rgba(16,24,40,0.08)' }}>
+        <div className="col-span-4 ">
+          <div id="preview-root" className="p-6 backdrop-blur-md float-soft rounded-lg shadow-lg" style={{ background: 'var(--bg)', fontFamily: 'var(--font)' }}>
+            <div className="max-w-2xl mx-auto text-black" style={{ background: 'var(--card-bg)', padding: '1.25rem', borderRadius: '12px', boxShadow: '0 6px 20px rgba(16,24,40,0.08)' }}>
               {ast.title && <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--accent)', fontSize: resolvePresetFor('title')?.fontSize }}>{ast.title}</h1>}
 
               <div>
