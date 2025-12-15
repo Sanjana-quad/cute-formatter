@@ -368,7 +368,7 @@ ${wrapper.innerHTML}
         <div className="col-span-4">
           <div className="p-4 rounded-xl bg-white/70 backdrop-blur-md float-soft">
             <label className="block text-black text-sm font-medium mb-1">Input Text</label>
-            <textarea value={input} onChange={e => setInput(e.target.value)} className="w-full h-48 p-3 rounded border focus:outline-none" />
+            <textarea value={input} onChange={e => setInput(e.target.value)} className="text-black w-full h-48 p-3 rounded border focus:outline-none" />
           </div>
 
           <div className="p-4 rounded-xl bg-black/70 backdrop-blur-md float-soft">
@@ -403,7 +403,7 @@ ${wrapper.innerHTML}
 
           <div className="flex gap-2">
             <button onClick={exportHTML} className="px-3 py-2 bg-indigo-600 text-white rounded">Copy HTML</button>
-            <button onClick={() => { navigator.clipboard.writeText(input); alert('Input copied'); }} className="px-3 py-2 border rounded">Copy Input</button>
+            <button onClick={() => { navigator.clipboard.writeText(input); alert('Input copied'); }} className="text-black bg-cyan-600 px-3 py-2 border rounded">Copy Input</button>
             <button onClick={handleSmartParse} className="mt-2 px-3 py-2 bg-purple-600 text-white rounded"> Smart Parse (LLM) </button>
             <button
               onClick={downloadHTML}
