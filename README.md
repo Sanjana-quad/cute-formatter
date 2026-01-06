@@ -171,32 +171,32 @@ Visual stack:
 📁 Project Structure
 --------------------
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   app/   ├─ api/   │   ├─ parse/route.js          # LLM parsing API   │   └─ export-pdf/route.js     # PDF generation   ├─ page.jsx                    # Main page  components/   ├─ CuteFormatterStarter.jsx    # Core editor   ├─ PastelDreamScene.jsx        # 3D pastel background   ├─ MouseParallax.jsx           # Mouse‑based parallax  styles/   ├─ globals.css   `
+`   app/   ├─ api/   │   ├─ parse/route.js          # LLM parsing API   │   └─ export-pdf/route.js     # PDF generation   ├─ page.jsx                    # Main page  components/   ├─ CuteFormatterStarter.jsx    # Core editor   ├─ PastelDreamScene.jsx        # 3D pastel background   ├─ MouseParallax.jsx           # Mouse‑based parallax  styles/   ├─ globals.css   `
 
 🚀 Getting Started
 ------------------
 
 ### 1\. Install dependencies
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm install   `
+`   npm install   `
 
 Additional libs used:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm install @react-three/fiber @react-three/drei three  npm install html2canvas-pro  npm install puppeteer   `
+`   npm install @react-three/fiber @react-three/drei three  npm install html2canvas-pro  npm install puppeteer   `
 
 ### 2\. Environment Variables
 
 Create .env.local:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   OPENROUTER_API_KEY=sk-or-xxxx   `
+`   OPENROUTER_API_KEY=sk-or-xxxx   `
 
 ### 3\. Run the app
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   npm run dev   `
+`   npm run dev   `
 
 Visit:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   http://localhost:3000   `
+`   http://localhost:3000   `
 
 🧪 How to Use
 -------------
@@ -284,3 +284,8 @@ It proves that:
 > _Aesthetic tools can be technically deep, and deep systems can still feel cute._
 
 Happy building ✨
+
+💖 In progress
+---------------
+
+Will update soon!
